@@ -1,0 +1,85 @@
+#!/bin/sh
+#                          ° °
+#----------------------oOo  ~  oOo------------------------
+#
+# start_obs: script with the right sequence to start HATS
+#            observations
+#
+#            Based on SST start_obs
+#
+#            @guiguesp - 2022-02-23T1305BRT
+#
+#---------------------------------------------------------
+
+export bindir=/opt/HAX/bin
+export logdir=/homs/HATS/log
+
+
+#
+#    Kill all processes
+#     $bindir/stop_obs
+#
+
+#
+#     If necessary, create  log files
+#
+
+     touch $logdir/shmem.log   \
+           $logdir/mqueue.log  \
+	   $logdir/tcpip.log   \
+           $logdir/files.log   \
+	   $logdir/acquire.log \
+	   $logdir/control.log \
+           $logdir/ephem.log   \
+           $logdir/other.log
+
+#
+     sleep 1
+     echo "             ******************************************** "
+     echo "             *                                          * "
+     echo "             *  O B S E R V A T I O N     S T A R T S   * "
+     echo "             *                                          * "
+     echo "             ******************************************** "
+     
+
+#    Data acquisition
+     echo "                                                          "
+     echo "                    Data acquisition                      "
+     $bindir/HOMS_data_transfer_daemon
+
+#    Load configuration parameters
+     echo "                                                          "
+     echo "             Load configuration parameters                "
+     $bindir/cfgStore
+
+#    Connect to Mount
+     echo "                                                          "
+     echo "                    Connect to Mount                      "
+     $bindir/pTrack -c
+     
+#    Read Position
+     echo "                                                          "
+     echo "               Initiate reading mount positions           "
+     $bindir/getPos --daemon
+     
+#    Mount to home position
+     echo "                                                          "
+     echo "          unpark and find home                            "
+     $bindir/pTrack -uf
+
+#    Mount to park
+#     echo "                                                          "
+#     echo "                    Park the mount                        "
+#     $bindir/pTrack -p
+     
+     sleep 1
+     echo "             ********************************************* "
+     echo "             *                                           * "
+     echo "             *  O B S E R V A T I O N     S T A R T E D  * "
+     echo "             *                                           * "
+     echo "             ******************************************** "
+
+#                        
+#                          ° °
+#----------------------oOo  ~  oOo------------------------
+#

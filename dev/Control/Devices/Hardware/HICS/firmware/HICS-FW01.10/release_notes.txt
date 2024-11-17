@@ -1,0 +1,138 @@
+FIRMWARE RELEASE NOTES
+
+*** CRAAM - Centro de Rádio-Astronomia e Astrofísica Mackenzie ***
+*** HATS::HICS - Data Acquisition Module                       ***
+
+
+==================================================================
+
+*** Firmware version 01.10 - 30/October/2020                   ***
+
+- IDE:   Atmel Studio 7
+- Board: Atmel SAM4E-Xplained-Pro
+
+- Project File: HICS_FW.atsln
+
+- Release 01.10:
+	- Implementado transmissão dos dados ADC no formato binário (raw data)
+
+	  DADO	          FORMATO	SIZE
+          -----           -------	----
+          ulSample        u32  		4 bytes
+          ulTimestamp_sec u32 		4 bytes
+          usTimestamp_ms  u16		2 bytes
+          u64husec        u64		8 bytes
+          rawGolay        i24		4 bytes
+          rawPowerSupply  i24		4 bytes
+
+	  Os dados são transmitidos como LSB first	
+
+          Exemplo, supondo: 
+	  ulSample        = 0x44332211 
+	  ulTimestamp_sec = 0x88776655 
+          usTimestamp_ms  = 0xBBAA
+          u64husec        = 0x8877665544332211 
+          rawGolay        = 0xB3332211
+          rawPowerSupply  = 0x89FFEEDD
+
+	  Transmissão (os espaços são apenas para facilitar o entendimento, não existem na transmissão):
+          11223344 55667788 AABB 1122334455667788 112233B3 DDEEFF89 
+
+
+    	- Implementado possibilidade de selecionar transmissão binária ou ascii-hex em 
+	  tempo de compilação através do #define HICS_TX_ASCII_HEX
+
+
+==================================================================
+
+*** Firmware version 01.00 - 26/June/2020                      ***
+
+- IDE:   Atmel Studio 7
+- Board: Atmel SAM4E-Xplained-Pro
+
+- Project File: HICS_FW.atsln
+
+- Release 01.00:
+	- Monitoramento do funcionamento do firmware e implementação de watchdogs (hardware e software)
+
+    	- Buffer circular na memória SRAM externa
+		- Capacidade: 10.000 amostras
+
+    	- Transmissão dos pacotes via TCP ao invés de UDP
+        	- Pacotes transmitidos como ASCII-HEX
+        	- Campos (separados por espaço): 
+            		=> ulSample ulTimestamp_sec usTimestamp_ms u64husec rawGolay rawPowerSupply
+            	- Exemplo: 0018DE8F 5EF1150A 015D 000000002C071C19 B3000035 89FFFFE8
+    
+    	- Função para desacoplar placas antes de desligar alimentação
+        	Procedimento:
+        	1. Led piscando normal (250ms)
+        	2. Manter switch 0 pressionado por mais que 3 segundos até led mudar padrão de piscar
+        	3. Se led começar a piscar lentamente (750ms) aguardar (placa está desacoplando - desligamento suave - fechando sockets)
+        	4. Quando led começar a piscar rápido (50ms) as placas podem ser desligadas
+    
+    	- Monitoramento de ruído na fonte de alimentação
+        	- Amostragem e transmissão do canal AD(0) junto com os pacotes de dados da Célula de Golay
+
+
+==================================================================
+
+*** Firmware version 00.03 - 02/October/2019                   ***
+
+- Integrated development environment: 	Atmel Studio 7
+- Board: 				Atmel SAM4E-Xplained-Pro
+
+- Project File: HICS_FW.atsln
+
+- Release 00.03:
+	- Implementado SNTP client
+	- Implementado Timestamp HICS com SEGUNDOS, MILESSEGUNDOS E HUSECS
+	- Implementado socket UDP para transmitir buffer das amostras ADC com Timestamp
+		=> Dados transmitidos: NUMBER_OF_SAMPLE TIMESTAMP_SEC TIMESTAMP_MS HUSECS SAMPLE
+
+
+==================================================================
+
+*** Firmware version 00.02 - 03/September/2019                 ***
+
+- Integrated development environment: 	Atmel Studio 7
+- Board: 				Atmel SAM4E-Xplained-Pro
+
+- Project File: HICS_FW.atsln
+
+- Release 00.02:
+	- Implementado Driver SPI
+
+	- Implementado ADC-24bit MANAGEMENT
+		=> Implementado leitura e escrita dos registros de configuração do AD7770
+		=> AD7770 configurado para:
+			=> POWERMODE = High resolution
+			=> DECIMATION RATE = 2048 (Output Data Rate ODR=1KHz)
+			=> ENABLE SPI slave mode to read back ADC on SDO
+		=> Implementado leitura das amostras do canal 3 do AD via interrupção a cada 1ms
+			=> AD7770 DRDY signal trigger an interrupt on rising edge
+			=> DRDY gera int a cada 1ms (DECIMATION RATE = 2048 (ODR = 1KHz))
+		=> Implementado teste em ADC_task() para imprimir no debug 1000 amostras do canal 3 a cada 5s em formato decimal 
+
+	- configASSERT habilitado para debug do FreeRTOS
+	- Code OPTIMIZATION passado de nível 1 para nível 0 (não otimizar) para facilitar depuração passo a passo
+
+
+==================================================================
+
+*** Firmware version 00.01 - 28/June/2019                      ***
+
+- Integrated development environment: 	Atmel Studio 7
+- Board: 				Atmel SAM4E-Xplained-Pro
+
+- Project File: HICS_FW.atsln
+
+- Release 00.01:
+	- Rotinas de inicializacao da placa Atmel SAM4E-Xplained-Pro
+	- freertos-10.0.0
+	- FreeRTOS_Plus_TCP
+	- Tick 1ms
+
+==================================================================
+
+ 

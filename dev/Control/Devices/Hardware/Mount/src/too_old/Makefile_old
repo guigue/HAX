@@ -1,0 +1,27 @@
+# Makefile for the Mount getter
+#
+# Guigue - 2019-11-19 @Sampa
+#
+#
+########################################################################
+
+CFLAGS =  -g  -Wall -I../inc
+CLIBS = -lrt -lpthread
+CC = gcc
+
+GETPOS_EXE = getPos
+MAIN_PROGS = $(GETPOS_EXE) 
+
+GETPOS = getPos.c 
+
+#########################################################################
+all: compile
+
+getPos: $(GETPOS)
+	$(CC) $(CFLAGS) $(GETPOS) -o $(GETPOS_EXE) $(CLIBS)
+
+compile: $(MAIN_PROGS)
+
+clean:
+	rm -f $(MAIN_PROGS) *.o
+

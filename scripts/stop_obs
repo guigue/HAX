@@ -1,0 +1,48 @@
+#!/bin/sh
+#                          ° °
+#----------------------oOo  ~  oOo------------------------
+#
+# stop_obs: script with the right sequence to stop HATS
+#            observations
+#
+#            Based on SST stop_obs
+#
+#            @guiguesp - 2022-02-23T1305BRT
+#
+#---------------------------------------------------------
+
+export bindir=/opt/HAX/bin
+export logdir=/homs/HATS/log
+
+#    Data acquisition
+     echo "                                                          "
+     echo "              Data acquisition stops                      "
+     $bindir/HOMS_stopacquire
+
+#    Connect to Mount
+     echo "                                                          "
+     echo "           Park and disconnect the Mount                  "
+     $bindir/pTrack -pd
+
+#    Stop storing mount positions
+     echo "                                                          "
+     echo "           Stop storing mount position                    "
+     $bindir/getPos -s
+
+#    Delete shared memories and semphores
+     echo "                                                          "
+     echo "               Delete shmem & sem                         "
+     $bindir/delShmem
+
+     sleep 1
+     
+     echo "             ********************************************* "
+     echo "             *                                           * "
+     echo "             *  O B S E R V A T I O N     S T O P P E D  * "
+     echo "             *                                           * "
+     echo "             ********************************************* "
+
+#                        
+#                          ° °
+#----------------------oOo  ~  oOo------------------------
+#
